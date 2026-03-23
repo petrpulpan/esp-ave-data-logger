@@ -22,7 +22,7 @@ The device wakes up on a fixed interval, reads temperature, humidity, and barome
 
 The firmware targets the **ESP8266** microcontroller (NodeMCU / Wemos D1 mini class boards).
 
-![ESP8266 development board](https://github.com/user-attachments/assets/8c99950a-21c9-475e-be58-ea36f7cc60f0)
+![ESP8266 development board](./img/esp8266.jpg)
 
 ### Sensor wiring
 
@@ -55,7 +55,7 @@ A startup self-test (WiFi reachability, NTP, sensor sanity checks) runs once on 
 
 Collected measurements are visualised in [AVE System](https://www.ave-system.com/en/home/index) — an IoT data platform that stores time-series data and renders interactive charts.
 
-![AVE System – sensor data chart](https://github.com/user-attachments/assets/a418210e-0548-4418-a06d-65807c03ae3d)
+![AVE System – sensor data chart](./img/chart.jpg)
 
 ---
 
