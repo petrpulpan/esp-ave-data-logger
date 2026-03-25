@@ -20,6 +20,8 @@ The codebase is intentionally split into small modules so hardware, networking, 
   - SensorReadings struct
 - src/config.cpp
   - Definitions of runtime string constants (SSID, password, device id, endpoint URL)
+- include/pressure_correction.h
+  - Pure pressure-correction formulas used by upload code and unit tests
 - src/main.cpp
   - High-level orchestration only (setup and loop)
 - src/i2c_utils.h + src/i2c_utils.cpp
@@ -34,9 +36,11 @@ The codebase is intentionally split into small modules so hardware, networking, 
 - src/http_client.h + src/http_client.cpp
   - URL build and HTTPS upload
   - User-Agent handling
-  - Pressure correction logic
+  - Uses extracted pressure-correction module
 - src/self_test.h + src/self_test.cpp
   - Startup health checks and summary logging
+- test/test_pressure_correction/test_main.cpp
+  - Unit tests for sea-level pressure correction formulas
 
 ## Build Environment
 
@@ -123,6 +127,7 @@ Sensor source policy:
 
 ## Pressure Conversion Model
 
+In include/pressure_correction.h, pressure-correction formulas are defined and reused by upload logic and unit tests.
 In src/http_client.cpp, uploaded pressure value p is sea-level pressure in hPa.
 
 Station pressure from BMP180 is in Pa and corrected by altitude:
@@ -169,6 +174,12 @@ Monitor:
 
 ```powershell
 C:\Users\Petr\.platformio\penv\Scripts\platformio.exe device monitor --baud 115200
+
+Unit tests (host/native):
+
+```powershell
+C:\Users\Petr\.platformio\penv\Scripts\platformio.exe test --environment native
+```
 ```
 
 ## Operational Notes

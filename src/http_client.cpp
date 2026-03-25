@@ -1,19 +1,19 @@
 #include "http_client.h"
 #include "config.h"
+#include "pressure_correction.h"
 #include <Arduino.h>
 #include <ESP8266HTTPClient.h>
 #include <ESP8266WiFi.h>
 #include <WiFiClientSecureBearSSL.h>
-#include <math.h>
 
 // Builds and sends the HTTPS upload request with corrected pressure values.
 bool sendData(const SensorReadings& readings, uint32_t unixTime) {
   // Convert station pressure (Pa) -> sea-level pressure (Pa) -> hPa
   // so backend values are comparable across sites with different elevations.
   const float seaLevelPressurePa =
-      readings.pressurePa /
-      powf(1.0f - (Config::kAltitudeMeters / 44330.0f), 5.255f);
-  const float seaLevelPressureHpa = seaLevelPressurePa / 100.0f;
+    PressureCorrection::toSeaLevelPa(readings.pressurePa, Config::kAltitudeMeters);
+  const float seaLevelPressureHpa =
+    PressureCorrection::toSeaLevelHpa(readings.pressurePa, Config::kAltitudeMeters);
 
   Serial.printf("[HTTP] Pressure conversion station=%.2fPa altitude=%.2fm"
                 " sea-level=%.2fPa %.2fhPa\n",
