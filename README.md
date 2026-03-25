@@ -97,6 +97,30 @@ platformio test --environment native
 
 ---
 
+## Development environment setup
+
+For a quick local setup, use Visual Studio Code with PlatformIO.
+
+1. Install **Visual Studio Code**.
+2. Install the **PlatformIO IDE** extension from the VS Code Marketplace.
+3. Install **Python 3** (required by PlatformIO Core).
+4. Open this project folder in VS Code.
+5. In a VS Code terminal, run a first build to download toolchains/libraries:
+
+```bash
+platformio run --environment nodemcuv2
+```
+
+After the first successful build, you can use the standard commands above for upload and serial monitor.
+
+On Windows, if `platformio` is not in PATH, you can run it via:
+
+```powershell
+C:\Users\<YourUser>\.platformio\penv\Scripts\platformio.exe run --environment nodemcuv2
+```
+
+---
+
 ## Configuration
 
 Edit `include/config.h` and `src/config.cpp` to set your network credentials, device ID, endpoint URL, and physical constants (altitude for pressure correction, temperature calibration offset, loop interval, etc.). Data model structs are defined in `include/telemetry_types.h`.

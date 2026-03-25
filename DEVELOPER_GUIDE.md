@@ -127,10 +127,10 @@ SensorReadings payload fields:
 1. Start Serial at 115200 with debug output
 2. Log boot diagnostics
 3. Initialize sensor hardware (I2C, DHT11, BMP180) and capture SensorInitStatus
-4. Run startup self-test:
-  - sensor phase (runSensorSelfTest)
-  - connectivity phase (runConnectivitySelfTest)
-  - aggregate summary (runStartupSelfTest)
+4. Call runStartupSelfTest()
+   - internally runs runSensorSelfTest()
+   - internally runs runConnectivitySelfTest()
+   - logs aggregate summary
 5. Shutdown WiFi
 
 ### loop
@@ -150,7 +150,7 @@ SensorReadings payload fields:
 ## Pressure Conversion Model
 
 In include/pressure_correction.h, pressure-correction formulas are defined and reused by sensor processing and unit tests.
-In src/sensors.cpp, sea-level pressure is computed and stored in SensorReadings.
+In src/sensor_processing.cpp, sea-level pressure is computed and stored in SensorReadings.
 In src/http_client.cpp, uploaded pressure value p uses SensorReadings.seaLevelPressureHpa.
 
 Station pressure from BMP180 is in Pa and corrected by altitude:
