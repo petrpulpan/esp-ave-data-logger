@@ -1,5 +1,6 @@
 #include <Arduino.h>
 #include "config.h"
+#include "telemetry_types.h"
 #include "wifi_manager.h"
 #include "ntp_manager.h"
 #include "sensors.h"
@@ -17,7 +18,11 @@ void setup() {
   Serial.printf("[Boot] SDK: %s\n", ESP.getSdkVersion());
   Serial.println("[Boot] I2C wiring: D1=GPIO5=SCL, D2=GPIO4=SDA");
 
-  initSensors();
+  const SensorInitStatus initStatus = initSensors();
+  Serial.printf("[Boot] Sensor init summary I2C=%s DHT=%s BMP=%s\n",
+                initStatus.i2cInitialized ? "OK" : "FAIL",
+                initStatus.dhtInitialized ? "OK" : "FAIL",
+                initStatus.bmpLibraryInitialized ? "OK" : "FAIL");
   runStartupSelfTest();
   shutdownWiFi();
 }

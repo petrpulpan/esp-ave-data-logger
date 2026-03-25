@@ -3,16 +3,6 @@
 #include <stdint.h>
 
 // ---------------------------------------------------------------------------
-// Sensor reading result passed between modules
-// ---------------------------------------------------------------------------
-struct SensorReadings {
-  float temperatureC;
-  float humidityPct;
-  float pressurePa;
-  float seaLevelPressureHpa;
-};
-
-// ---------------------------------------------------------------------------
 // Project-wide configuration constants
 // ---------------------------------------------------------------------------
 namespace Config {

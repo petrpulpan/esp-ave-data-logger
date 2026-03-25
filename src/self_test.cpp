@@ -1,39 +1,38 @@
 #include "self_test.h"
-#include "config.h"
 #include "sensors.h"
 #include "wifi_manager.h"
 #include "ntp_manager.h"
+
 #include <Arduino.h>
 #include <math.h>
 
-// Executes startup sensor/network checks and prints a consolidated status summary.
-void runStartupSelfTest() {
-  Serial.println("[SelfTest] Running startup checks...");
+// Executes startup sensor checks and returns all sensor-side status details.
+SensorSelfTestResult runSensorSelfTest() {
+  SensorSelfTestResult result = {};
 
-  bool dhtOk = false;
-  bool bmpOk = false;
-  float dhtTemp = 0.0f, dhtHum = 0.0f;
-  float bmpTemp = 0.0f, bmpPressure = 0.0f;
+  result.bmpInitStatus = initBmp180();
 
   for (uint8_t attempt = 1; attempt <= 2; ++attempt) {
-    dhtOk = readDHTRaw(dhtTemp, dhtHum);
-    bmpOk = readBMPRaw(bmpTemp, bmpPressure);
+    result.dhtSample = readDHTRaw();
+    result.bmpSample = readBMPRaw();
+    result.dhtOk = result.dhtSample.valid;
+    result.bmpOk = result.bmpSample.valid;
 
-    if (dhtOk) {
+    if (result.dhtOk) {
       Serial.printf("[SelfTest] DHT sample OK on attempt %u (T=%.2fC H=%.2f%%)\n",
-                    attempt, dhtTemp, dhtHum);
+                    attempt, result.dhtSample.temperatureC, result.dhtSample.humidityPct);
     }
 
-    if (bmpOk) {
+    if (result.bmpOk) {
       Serial.printf("[SelfTest] BMP sample OK on attempt %u (T=%.2fC P=%.2fPa)\n",
-                    attempt, bmpTemp, bmpPressure);
+                    attempt, result.bmpSample.temperatureC, result.bmpSample.pressurePa);
     }
 
-    if (dhtOk && bmpOk) {
+    if (result.dhtOk && result.bmpOk) {
       // DHT vs BMP delta helps monitor drift after applying BMP calibration offset.
-      const float delta = fabsf(bmpTemp - dhtTemp);
+      const float delta = fabsf(result.bmpSample.temperatureC - result.dhtSample.temperatureC);
       Serial.printf("[SelfTest] Temperature comparison BMP=%.2fC DHT=%.2fC Delta=%.2fC\n",
-                    bmpTemp, dhtTemp, delta);
+                    result.bmpSample.temperatureC, result.dhtSample.temperatureC, delta);
       break;
     }
 
@@ -41,19 +40,34 @@ void runStartupSelfTest() {
     delay(1200);
   }
 
-  const bool wifiOk = connectWiFi();
-  bool ntpOk = false;
-  uint32_t unixTime = 0;
-  // Network checks are intentionally separate from sensor checks.
-  if (wifiOk) {
-    ntpOk = getUnixTime(unixTime);
+  return result;
+}
+
+// Executes startup connectivity checks and returns network-side status details.
+ConnectivitySelfTestResult runConnectivitySelfTest() {
+  ConnectivitySelfTestResult result = {};
+  result.wifiOk = connectWiFi();
+  if (result.wifiOk) {
+    result.ntpOk = getUnixTime(result.unixTime);
   }
   shutdownWiFi();
+  return result;
+}
+
+// Executes startup sensor/network checks and prints a consolidated status summary.
+StartupSelfTestSummary runStartupSelfTest() {
+  Serial.println("[SelfTest] Running startup checks...");
+
+  StartupSelfTestSummary summary = {};
+  summary.sensor = runSensorSelfTest();
+  summary.connectivity = runConnectivitySelfTest();
 
   Serial.printf("[SelfTest] Summary WiFi=%s NTP=%s DHT=%s BMP=%s TempSource=%s\n",
-                wifiOk         ? "OK" : "FAIL",
-                ntpOk          ? "OK" : "FAIL",
-                dhtOk          ? "OK" : "FAIL",
-                gBmpInitialized? "OK" : "FAIL",
-                bmpOk          ? "BMP180" : "UNAVAILABLE");
+                summary.connectivity.wifiOk                   ? "OK" : "FAIL",
+                summary.connectivity.ntpOk                    ? "OK" : "FAIL",
+                summary.sensor.dhtOk                          ? "OK" : "FAIL",
+                summary.sensor.bmpInitStatus.bmpLibraryInitialized ? "OK" : "FAIL",
+                summary.sensor.bmpOk                          ? "BMP180" : "UNAVAILABLE");
+
+  return summary;
 }

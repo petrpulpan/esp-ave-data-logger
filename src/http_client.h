@@ -1,8 +1,8 @@
 #pragma once
 
-#include "config.h"
+#include "telemetry_types.h"
 #include <stdint.h>
 
 // Build and send the HTTP GET upload request.
-// Converts pressurePa to sea-level hPa before sending.
+// Uses precomputed SensorReadings values for payload fields.
 bool sendData(const SensorReadings& readings, uint32_t unixTime);

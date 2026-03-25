@@ -1,24 +1,21 @@
 #pragma once
 
-#include "config.h"
+#include "telemetry_types.h"
 
-// Set to true by initBmp180() on success; readable by self_test
-extern bool gBmpInitialized;
+// Initializes I2C/DHT/BMP hardware and returns detailed init status.
+SensorInitStatus initSensors();
 
-// Initialise I2C bus, DHT and BMP180 (call once from setup)
-void initSensors();
-
-// Scan I2C bus and log all found device addresses
+// Scans I2C bus and logs detected device addresses.
 void scanI2CBus();
 
-// (Re-)initialise BMP180; called at boot and on read failures
-bool initBmp180();
+// Re-initializes BMP180 path and returns detailed init status.
+SensorInitStatus initBmp180();
 
-// Raw DHT read – caller checks isnan(); used by self-test
-bool readDHTRaw(float& temperature, float& humidity);
+// Reads one raw DHT sample and returns status + values.
+RawDhtSample readDHTRaw();
 
-// Raw BMP read – caller checks result; used by self-test diagnostics
-bool readBMPRaw(float& temperature, float& pressure);
+// Reads one raw BMP sample and returns status + values.
+RawBmpSample readBMPRaw();
 
-// Validate and fill readings (including precomputed sea-level pressure); retries on failure
-bool readSensors(SensorReadings& readings);
+// Reads validated telemetry values with retry/recovery and optional detail status.
+bool readSensors(SensorReadings& readings, SensorReadStatus* status = nullptr);

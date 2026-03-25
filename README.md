@@ -19,14 +19,18 @@ The device wakes up on a fixed interval, reads temperature, humidity, and barome
 ### Module map
 
 - `src/main.cpp`: high-level startup and telemetry loop orchestration
+- `include/telemetry_types.h`: shared telemetry/status models passed between modules
 - `src/config.cpp` + `include/config.h`: runtime strings and shared constants
 - `include/pressure_correction.h`: reusable sea-level pressure correction formulas
 - `src/i2c_utils.cpp`: low-level I2C setup/probe/register/block helpers
-- `src/sensors.cpp`: DHT11/BMP180 init, validated sensor reads, retry logic, pressure precompute
+- `src/sensor_hw_init.cpp`: sensor hardware init/diagnostics (I2C + DHT + BMP180)
+- `src/sensor_reader.cpp`: raw sensor sample acquisition
+- `src/sensor_processing.cpp`: sample validation and pressure correction into payload model
+- `src/sensors.cpp`: facade/orchestration over sensor layers with retry/recovery policy
 - `src/wifi_manager.cpp`: WiFi connect/disconnect only
 - `src/ntp_manager.cpp`: NTP sync and UNIX timestamp acquisition
 - `src/http_client.cpp`: HTTPS upload request build and transmission from prepared SensorReadings
-- `src/self_test.cpp`: startup self-test and status summary logging
+- `src/self_test.cpp`: startup self-test split into sensor and connectivity phases plus aggregate summary
 
 Unit tests for pressure conversion are in `test/test_pressure_correction/test_main.cpp`.
 
@@ -61,7 +65,7 @@ Each loop iteration runs the following steps in order:
 5. Upload a single HTTPS GET request to the AVE System endpoint
 6. Disconnect WiFi and wait for the next interval
 
-A startup self-test (WiFi reachability, NTP, sensor sanity checks) runs once on boot before the main loop begins.
+A startup self-test runs once on boot before the main loop begins. It executes sensor checks and connectivity checks in separate phases and then logs one aggregate summary line.
 
 ---
 
@@ -95,7 +99,7 @@ platformio test --environment native
 
 ## Configuration
 
-Edit `include/config.h` and `src/config.cpp` to set your network credentials, device ID, endpoint URL, and physical constants (altitude for pressure correction, temperature calibration offset, loop interval, etc.).
+Edit `include/config.h` and `src/config.cpp` to set your network credentials, device ID, endpoint URL, and physical constants (altitude for pressure correction, temperature calibration offset, loop interval, etc.). Data model structs are defined in `include/telemetry_types.h`.
 
 Current default calibration offset for BMP180 temperature is `-1.0` °C (`Config::kBmpSensorTemperatureCalibration`).
 

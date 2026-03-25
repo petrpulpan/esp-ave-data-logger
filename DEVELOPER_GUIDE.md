@@ -17,7 +17,8 @@ The codebase is intentionally split into small modules so hardware, networking, 
 
 - include/config.h
   - Shared constants and project-wide configuration declarations
-  - SensorReadings struct (raw pressure + precomputed sea-level pressure)
+- include/telemetry_types.h
+  - Shared telemetry and status models (SensorReadings, raw samples, init/read status)
 - src/config.cpp
   - Definitions of runtime string constants (SSID, password, device id, endpoint URL)
 - include/pressure_correction.h
@@ -26,11 +27,15 @@ The codebase is intentionally split into small modules so hardware, networking, 
   - High-level orchestration only (setup and loop)
 - src/i2c_utils.h + src/i2c_utils.cpp
   - Low-level I2C bus setup, probing, register/block reads, and scan logging
+- src/sensor_hw_init.h + src/sensor_hw_init.cpp
+  - Hardware-oriented sensor initialization and BMP180 diagnostics
+- src/sensor_reader.h + src/sensor_reader.cpp
+  - Raw DHT/BMP sample reads with BMP temperature calibration application
+- src/sensor_processing.h + src/sensor_processing.cpp
+  - Validation and conversion of raw samples into SensorReadings payload model
 - src/sensors.h + src/sensors.cpp
-  - DHT11 and BMP180 initialization/read logic
-  - BMP180 diagnostics and validation
-  - Read validation, BMP temperature calibration, retry handling
-  - Computes and stores sea-level pressure in SensorReadings
+  - Facade/orchestrator over sensor_hw_init, sensor_reader, sensor_processing
+  - Retry and recovery policy (re-init BMP on invalid samples)
 - src/wifi_manager.h + src/wifi_manager.cpp
   - WiFi connect/disconnect only
 - src/ntp_manager.h + src/ntp_manager.cpp
@@ -40,7 +45,10 @@ The codebase is intentionally split into small modules so hardware, networking, 
   - User-Agent handling
   - Uses precomputed sea-level pressure from SensorReadings
 - src/self_test.h + src/self_test.cpp
-  - Startup health checks and summary logging
+  - Split startup health checks:
+    - runSensorSelfTest()
+    - runConnectivitySelfTest()
+  - runStartupSelfTest() aggregates and logs summary
 - test/test_pressure_correction/test_main.cpp
   - Unit tests for sea-level pressure correction formulas
 
@@ -78,6 +86,7 @@ Dependencies:
 ## Configuration
 
 Most constants are declared in include/config.h.
+Telemetry/status structs are declared in include/telemetry_types.h.
 
 Runtime string values are defined in src/config.cpp:
 
@@ -117,8 +126,11 @@ SensorReadings payload fields:
 
 1. Start Serial at 115200 with debug output
 2. Log boot diagnostics
-3. Initialize sensors (I2C, DHT11, BMP180)
-4. Run startup self-test (WiFi, NTP, DHT, BMP summary + BMP vs DHT temperature comparison)
+3. Initialize sensor hardware (I2C, DHT11, BMP180) and capture SensorInitStatus
+4. Run startup self-test:
+  - sensor phase (runSensorSelfTest)
+  - connectivity phase (runConnectivitySelfTest)
+  - aggregate summary (runStartupSelfTest)
 5. Shutdown WiFi
 
 ### loop
@@ -128,6 +140,9 @@ SensorReadings payload fields:
 3. Connect WiFi
 4. Get UNIX time via NTP (ntp_manager)
 5. Read validated sensor data
+  - sensor reader acquires raw values
+  - sensor processing validates and computes sea-level pressure
+  - sensors facade handles retry/recovery
 6. Send HTTPS GET upload
 7. Shutdown WiFi
 8. Delay until next cycle
