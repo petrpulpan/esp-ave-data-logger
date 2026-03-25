@@ -13,12 +13,12 @@
 
 // Scans the I2C bus and logs detected device addresses.
 void scanI2CBus() {
-  scanI2CBusLayer();
+  scanI2CBusHardwareLayer();
 }
 
 // Probes and initializes BMP180, including diagnostic chip/calibration reads.
 SensorInitStatus initBmp180() {
-  return reinitBmp180Layer();
+  return reinitBmp180HardwareLayer();
 }
 
 // Initializes I2C, DHT11, and BMP180 sensors during boot.
@@ -27,13 +27,13 @@ SensorInitStatus initSensors() {
 }
 
 // Reads raw DHT11 temperature and humidity values.
-RawDhtSample readDHTRaw() {
-  return readDhtSample();
+RawDhtSample readDhtRaw() {
+  return readDhtSampleLayer();
 }
 
 // Reads raw BMP180 temperature/pressure and applies configured temperature correction.
-RawBmpSample readBMPRaw() {
-  return readBmpSample();
+RawBmpSample readBmpRaw() {
+  return readBmpSampleLayer();
 }
 
 // Reads validated telemetry values with retry and BMP recovery logic.
@@ -45,19 +45,19 @@ bool readSensors(SensorReadings& readings, SensorReadStatus* status) {
   for (uint8_t attempt = 1; attempt <= Config::kSensorReadRetries; ++attempt) {
     Serial.printf("[Sensors] Read attempt %u/%u\n", attempt, Config::kSensorReadRetries);
 
-    RawDhtSample dht = readDhtSample();
-    RawBmpSample bmp = readBmpSample();
+    RawDhtSample dht = readDhtSampleLayer();
+    RawBmpSample bmp = readBmpSampleLayer();
 
     if (!bmp.valid) {
       Serial.println("[Sensors] Invalid BMP sample. Re-initializing BMP180...");
-      localStatus.bmpInitStatus = reinitBmp180Layer();
+      localStatus.bmpInitStatus = reinitBmp180HardwareLayer();
       delay(50);
-      bmp = readBmpSample();
+      bmp = readBmpSampleLayer();
     }
 
     bool dhtOk = false;
     bool bmpOk = false;
-    const bool processed = processSensorSamples(dht, bmp, readings, dhtOk, bmpOk);
+    const bool processed = processSensorSamplesLayer(dht, bmp, readings, dhtOk, bmpOk);
 
     localStatus.dhtValid = dhtOk;
     localStatus.bmpValid = bmpOk;
@@ -82,7 +82,7 @@ bool readSensors(SensorReadings& readings, SensorReadStatus* status) {
     // Re-init on BMP failures to recover from transient bus/device state issues.
     if (!bmpOk) {
       Serial.println("[Sensors] Re-initializing BMP180 after invalid pressure sample...");
-      localStatus.bmpInitStatus = reinitBmp180Layer();
+      localStatus.bmpInitStatus = reinitBmp180HardwareLayer();
     }
 
     delay(Config::kSensorRetryDelayMs);

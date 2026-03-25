@@ -5,11 +5,11 @@
 
 #include <math.h>
 
-bool processSensorSamples(const RawDhtSample& dht,
-                          const RawBmpSample& bmp,
-                          SensorReadings& readings,
-                          bool& dhtValid,
-                          bool& bmpValid) {
+bool processSensorSamplesLayer(const RawDhtSample& dht,
+                               const RawBmpSample& bmp,
+                               SensorReadings& readings,
+                               bool& dhtValid,
+                               bool& bmpValid) {
   dhtValid = dht.valid;
   bmpValid = bmp.valid &&
              bmp.pressurePa >= Config::kBmpMinPressurePa &&

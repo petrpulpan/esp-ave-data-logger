@@ -6,7 +6,7 @@
 SensorInitStatus initSensorHardwareLayer();
 
 // Re-initializes only BMP180 path (I2C probe + diagnostics + driver init).
-SensorInitStatus reinitBmp180Layer();
+SensorInitStatus reinitBmp180HardwareLayer();
 
 // Scans I2C bus and logs detected device addresses.
-void scanI2CBusLayer();
+void scanI2CBusHardwareLayer();

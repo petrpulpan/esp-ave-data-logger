@@ -5,7 +5,7 @@
 
 #include <math.h>
 
-RawDhtSample readDhtSample() {
+RawDhtSample readDhtSampleLayer() {
   RawDhtSample sample = {};
   sample.temperatureC = getDhtInstance().readTemperature();
   sample.humidityPct = getDhtInstance().readHumidity();
@@ -13,7 +13,7 @@ RawDhtSample readDhtSample() {
   return sample;
 }
 
-RawBmpSample readBmpSample() {
+RawBmpSample readBmpSampleLayer() {
   RawBmpSample sample = {};
   sample.temperatureC = getBmpInstance().readTemperature();
   sample.pressurePa = getBmpInstance().readPressure();

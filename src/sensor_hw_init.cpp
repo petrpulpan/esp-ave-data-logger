@@ -20,11 +20,11 @@ Adafruit_BMP085& getBmpInstance() {
   return s_bmp;
 }
 
-void scanI2CBusLayer() {
+void scanI2CBusHardwareLayer() {
   I2CUtils::scanBus();
 }
 
-SensorInitStatus reinitBmp180Layer() {
+SensorInitStatus reinitBmp180HardwareLayer() {
   SensorInitStatus status = {};
 
   I2CUtils::initBus(Config::kI2cSdaPin, Config::kI2cSclPin);
@@ -36,7 +36,7 @@ SensorInitStatus reinitBmp180Layer() {
   if (!status.bmpDetectedOnI2c) {
     Serial.printf("[BMP180] I2C device 0x%02X not detected on SDA=%u SCL=%u\n",
                   Config::kBmp180I2cAddress, Config::kI2cSdaPin, Config::kI2cSclPin);
-    scanI2CBusLayer();
+    scanI2CBusHardwareLayer();
     return status;
   }
 
@@ -87,13 +87,13 @@ SensorInitStatus initSensorHardwareLayer() {
 
   Serial.printf("[Boot] I2C initialized (SDA=%u SCL=%u).\n",
                 Config::kI2cSdaPin, Config::kI2cSclPin);
-  scanI2CBusLayer();
+  scanI2CBusHardwareLayer();
 
   s_dht.begin();
   status.dhtInitialized = true;
   Serial.printf("[Boot] DHT11 initialized on GPIO %d.\n", DHTPIN);
 
-  const SensorInitStatus bmpStatus = reinitBmp180Layer();
+  const SensorInitStatus bmpStatus = reinitBmp180HardwareLayer();
   status.bmpDetectedOnI2c = bmpStatus.bmpDetectedOnI2c;
   status.bmpChipIdRead = bmpStatus.bmpChipIdRead;
   status.bmpChipIdValid = bmpStatus.bmpChipIdValid;

@@ -13,8 +13,8 @@ SensorSelfTestResult runSensorSelfTest() {
   result.bmpInitStatus = initBmp180();
 
   for (uint8_t attempt = 1; attempt <= 2; ++attempt) {
-    result.dhtSample = readDHTRaw();
-    result.bmpSample = readBMPRaw();
+    result.dhtSample = readDhtRaw();
+    result.bmpSample = readBmpRaw();
     result.dhtOk = result.dhtSample.valid;
     result.bmpOk = result.bmpSample.valid;
 

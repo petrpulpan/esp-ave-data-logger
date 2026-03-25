@@ -12,10 +12,10 @@ void scanI2CBus();
 SensorInitStatus initBmp180();
 
 // Reads one raw DHT sample and returns status + values.
-RawDhtSample readDHTRaw();
+RawDhtSample readDhtRaw();
 
 // Reads one raw BMP sample and returns status + values.
-RawBmpSample readBMPRaw();
+RawBmpSample readBmpRaw();
 
 // Reads validated telemetry values with retry/recovery and optional detail status.
 bool readSensors(SensorReadings& readings, SensorReadStatus* status = nullptr);
