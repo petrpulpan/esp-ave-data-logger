@@ -28,6 +28,7 @@ void runStartupSelfTest() {
     }
 
     if (dhtOk && bmpOk) {
+      // DHT vs BMP delta helps monitor drift after applying BMP calibration offset.
       const float delta = fabsf(bmpTemp - dhtTemp);
       Serial.printf("[SelfTest] Temperature comparison BMP=%.2fC DHT=%.2fC Delta=%.2fC\n",
                     bmpTemp, dhtTemp, delta);
@@ -40,6 +41,7 @@ void runStartupSelfTest() {
   const bool wifiOk = connectWiFi();
   bool ntpOk = false;
   uint32_t unixTime = 0;
+  // Network checks are intentionally separate from sensor checks.
   if (wifiOk) {
     ntpOk = getUnixTime(unixTime);
   }

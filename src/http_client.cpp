@@ -7,7 +7,8 @@
 #include <math.h>
 
 bool sendData(const SensorReadings& readings, uint32_t unixTime) {
-  // Convert station pressure (Pa) → sea-level pressure (Pa) → hPa
+  // Convert station pressure (Pa) -> sea-level pressure (Pa) -> hPa
+  // so backend values are comparable across sites with different elevations.
   const float seaLevelPressurePa =
       readings.pressurePa /
       powf(1.0f - (Config::kAltitudeMeters / 44330.0f), 5.255f);
@@ -29,6 +30,7 @@ bool sendData(const SensorReadings& readings, uint32_t unixTime) {
 
   std::unique_ptr<BearSSL::WiFiClientSecure> client(
       new BearSSL::WiFiClientSecure);
+  // Current deployment does not validate CA/certificate chain.
   client->setInsecure();
 
   HTTPClient http;
@@ -37,6 +39,7 @@ bool sendData(const SensorReadings& readings, uint32_t unixTime) {
     return false;
   }
 
+  // setUserAgent() overrides the library default better than addHeader("User-Agent", ...).
   http.setUserAgent("SIGFOX");
   Serial.println("[HTTP] User-Agent set to: SIGFOX");
   http.setTimeout(10000);

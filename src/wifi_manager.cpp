@@ -12,6 +12,7 @@ bool connectWiFi() {
   WiFi.setAutoReconnect(false);
   WiFi.begin(Config::kSsid, Config::kPassword);
 
+  // Bound connect time so a bad AP does not block the full telemetry cycle.
   const uint32_t startMs = millis();
   wl_status_t status = WiFi.status();
   while (status != WL_CONNECTED && (millis() - startMs) < Config::kWifiTimeoutMs) {
@@ -43,6 +44,7 @@ bool getUnixTime(uint32_t& unixTime) {
   Serial.println("[NTP] Starting NTP client...");
 
   // Local objects avoid static-initialisation-order issues with Config strings.
+  // They also keep UDP/NTP resources short-lived between cycles.
   WiFiUDP ntpUdp;
   NTPClient ntpClient(ntpUdp, Config::kNtpServer, 0, 60000);
   ntpClient.begin();

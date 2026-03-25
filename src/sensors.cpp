@@ -136,9 +136,11 @@ bool readDHTRaw(float& temperature, float& humidity) {
 bool readBMPRaw(float& temperature, float& pressure) {
   temperature = s_bmp.readTemperature();
   pressure    = s_bmp.readPressure();
+  // Calibration offset compensates board/module-specific BMP temperature bias.
   if (!isnan(temperature)) {
     temperature += Config::kBmpSensorTemperatureCalibration;
   }
+  // Treat clearly out-of-range pressure as an invalid BMP sample.
   return !isnan(temperature) && !isnan(pressure) &&
          pressure >= Config::kBmpMinPressurePa &&
          pressure <= Config::kBmpMaxPressurePa;
@@ -148,6 +150,7 @@ bool readSensors(SensorReadings& readings) {
   for (uint8_t attempt = 1; attempt <= Config::kSensorReadRetries; ++attempt) {
     Serial.printf("[Sensors] Read attempt %u/%u\n", attempt, Config::kSensorReadRetries);
 
+    // Fast I2C presence probe prevents wasting retries on a missing device.
     if (!isI2CDevicePresent(Config::kBmp180I2cAddress)) {
       Serial.println("[Sensors] BMP180 not responding on I2C. Re-initializing...");
       initBmp180();
@@ -158,6 +161,7 @@ bool readSensors(SensorReadings& readings) {
     const float humidity    = s_dht.readHumidity();
     const float pressure    = s_bmp.readPressure();
 
+    // Apply the same calibration path used in the dedicated BMP helper.
     if (!isnan(temperature)) {
       temperature += Config::kBmpSensorTemperatureCalibration;
     }
@@ -181,6 +185,7 @@ bool readSensors(SensorReadings& readings) {
     Serial.printf("[Sensors] Validation failed (DHT=%s, BMP180=%s). Retrying...\n",
                   dhtOk ? "OK" : "FAIL", bmpOk ? "OK" : "FAIL");
 
+    // Re-init on BMP failures to recover from transient bus/device state issues.
     if (!bmpOk) {
       Serial.println("[Sensors] Re-initializing BMP180 after invalid pressure sample...");
       initBmp180();

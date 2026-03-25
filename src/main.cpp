@@ -23,12 +23,14 @@ void setup() {
 void loop() {
   Serial.println("========================================");
   Serial.println("[Loop] Starting new acquisition/upload cycle.");
+  // Keep this visible in every cycle so monitor users can verify bus health live.
   scanI2CBus();
 
   bool cycleOk = true;
   SensorReadings readings = {};
   uint32_t unixTime = 0;
 
+  // Intentional short-circuit chain: once a stage fails, skip dependent stages.
   if (!connectWiFi())                           cycleOk = false;
   if (cycleOk && !getUnixTime(unixTime))        cycleOk = false;
   if (cycleOk && !readSensors(readings))        cycleOk = false;
