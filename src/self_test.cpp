@@ -2,6 +2,7 @@
 #include "config.h"
 #include "sensors.h"
 #include "wifi_manager.h"
+#include "ntp_manager.h"
 #include <Arduino.h>
 #include <math.h>
 

@@ -32,8 +32,9 @@ The codebase is intentionally split into small modules so hardware, networking, 
   - Read validation, BMP temperature calibration, retry handling
   - Computes and stores sea-level pressure in SensorReadings
 - src/wifi_manager.h + src/wifi_manager.cpp
-  - WiFi connect/disconnect
-  - NTP sync (UNIX time)
+  - WiFi connect/disconnect only
+- src/ntp_manager.h + src/ntp_manager.cpp
+  - NTP sync and UNIX time retrieval
 - src/http_client.h + src/http_client.cpp
   - URL build and HTTPS upload
   - User-Agent handling
@@ -125,7 +126,7 @@ SensorReadings payload fields:
 1. Log cycle header
 2. Optional I2C scan log
 3. Connect WiFi
-4. Get UNIX time via NTP
+4. Get UNIX time via NTP (ntp_manager)
 5. Read validated sensor data
 6. Send HTTPS GET upload
 7. Shutdown WiFi

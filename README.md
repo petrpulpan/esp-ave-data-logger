@@ -23,7 +23,8 @@ The device wakes up on a fixed interval, reads temperature, humidity, and barome
 - `include/pressure_correction.h`: reusable sea-level pressure correction formulas
 - `src/i2c_utils.cpp`: low-level I2C setup/probe/register/block helpers
 - `src/sensors.cpp`: DHT11/BMP180 init, validated sensor reads, retry logic, pressure precompute
-- `src/wifi_manager.cpp`: WiFi connect/disconnect and NTP sync
+- `src/wifi_manager.cpp`: WiFi connect/disconnect only
+- `src/ntp_manager.cpp`: NTP sync and UNIX timestamp acquisition
 - `src/http_client.cpp`: HTTPS upload request build and transmission from prepared SensorReadings
 - `src/self_test.cpp`: startup self-test and status summary logging
 

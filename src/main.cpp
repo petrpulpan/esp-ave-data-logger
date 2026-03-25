@@ -1,6 +1,7 @@
 #include <Arduino.h>
 #include "config.h"
 #include "wifi_manager.h"
+#include "ntp_manager.h"
 #include "sensors.h"
 #include "http_client.h"
 #include "self_test.h"
