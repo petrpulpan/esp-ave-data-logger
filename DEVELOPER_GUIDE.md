@@ -184,25 +184,25 @@ Logs are prefixed by subsystem for easy monitor filtering:
 Build:
 
 ```powershell
-C:\Users\Petr\.platformio\penv\Scripts\platformio.exe run --environment nodemcuv2
+C:\Users\<YourUser>\.platformio\penv\Scripts\platformio.exe run --environment nodemcuv2
 ```
 
 Upload:
 
 ```powershell
-C:\Users\Petr\.platformio\penv\Scripts\platformio.exe run --target upload --environment nodemcuv2
+C:\Users\<YourUser>\.platformio\penv\Scripts\platformio.exe run --target upload --environment nodemcuv2
 ```
 
 Monitor:
 
 ```powershell
-C:\Users\Petr\.platformio\penv\Scripts\platformio.exe device monitor --baud 115200
+C:\Users\<YourUser>\.platformio\penv\Scripts\platformio.exe device monitor --baud 115200
 ```
 
 Unit tests (host/native):
 
 ```powershell
-C:\Users\Petr\.platformio\penv\Scripts\platformio.exe test --environment native
+C:\Users\<YourUser>\.platformio\penv\Scripts\platformio.exe test --environment native
 ```
 
 ## Operational Notes
