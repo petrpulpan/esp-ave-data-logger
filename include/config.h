@@ -9,6 +9,7 @@ struct SensorReadings {
   float temperatureC;
   float humidityPct;
   float pressurePa;
+  float seaLevelPressureHpa;
 };
 
 // ---------------------------------------------------------------------------

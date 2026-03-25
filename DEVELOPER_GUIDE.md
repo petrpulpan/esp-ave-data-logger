@@ -17,7 +17,7 @@ The codebase is intentionally split into small modules so hardware, networking, 
 
 - include/config.h
   - Shared constants and project-wide configuration declarations
-  - SensorReadings struct
+  - SensorReadings struct (raw pressure + precomputed sea-level pressure)
 - src/config.cpp
   - Definitions of runtime string constants (SSID, password, device id, endpoint URL)
 - include/pressure_correction.h
@@ -29,14 +29,15 @@ The codebase is intentionally split into small modules so hardware, networking, 
 - src/sensors.h + src/sensors.cpp
   - DHT11 and BMP180 initialization/read logic
   - BMP180 diagnostics and validation
-  - Read validation, BMP temperature calibration, and retry handling
+  - Read validation, BMP temperature calibration, retry handling
+  - Computes and stores sea-level pressure in SensorReadings
 - src/wifi_manager.h + src/wifi_manager.cpp
   - WiFi connect/disconnect
   - NTP sync (UNIX time)
 - src/http_client.h + src/http_client.cpp
   - URL build and HTTPS upload
   - User-Agent handling
-  - Uses extracted pressure-correction module
+  - Uses precomputed sea-level pressure from SensorReadings
 - src/self_test.h + src/self_test.cpp
   - Startup health checks and summary logging
 - test/test_pressure_correction/test_main.cpp
@@ -104,6 +105,11 @@ Sensor source policy:
 - Humidity: DHT11
 - Pressure: BMP180
 
+SensorReadings payload fields:
+
+- pressurePa: raw station pressure from BMP180
+- seaLevelPressureHpa: corrected pressure used for upload
+
 ## Main Runtime Flow
 
 ### setup
@@ -127,8 +133,9 @@ Sensor source policy:
 
 ## Pressure Conversion Model
 
-In include/pressure_correction.h, pressure-correction formulas are defined and reused by upload logic and unit tests.
-In src/http_client.cpp, uploaded pressure value p is sea-level pressure in hPa.
+In include/pressure_correction.h, pressure-correction formulas are defined and reused by sensor processing and unit tests.
+In src/sensors.cpp, sea-level pressure is computed and stored in SensorReadings.
+In src/http_client.cpp, uploaded pressure value p uses SensorReadings.seaLevelPressureHpa.
 
 Station pressure from BMP180 is in Pa and corrected by altitude:
 
@@ -174,12 +181,12 @@ Monitor:
 
 ```powershell
 C:\Users\Petr\.platformio\penv\Scripts\platformio.exe device monitor --baud 115200
+```
 
 Unit tests (host/native):
 
 ```powershell
 C:\Users\Petr\.platformio\penv\Scripts\platformio.exe test --environment native
-```
 ```
 
 ## Operational Notes

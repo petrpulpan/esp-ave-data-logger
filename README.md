@@ -22,9 +22,9 @@ The device wakes up on a fixed interval, reads temperature, humidity, and barome
 - `src/config.cpp` + `include/config.h`: runtime strings and shared constants
 - `include/pressure_correction.h`: reusable sea-level pressure correction formulas
 - `src/i2c_utils.cpp`: low-level I2C setup/probe/register/block helpers
-- `src/sensors.cpp`: DHT11/BMP180 init, validated sensor reads, retry logic
+- `src/sensors.cpp`: DHT11/BMP180 init, validated sensor reads, retry logic, pressure precompute
 - `src/wifi_manager.cpp`: WiFi connect/disconnect and NTP sync
-- `src/http_client.cpp`: HTTPS upload request build and transmission
+- `src/http_client.cpp`: HTTPS upload request build and transmission from prepared SensorReadings
 - `src/self_test.cpp`: startup self-test and status summary logging
 
 Unit tests for pressure conversion are in `test/test_pressure_correction/test_main.cpp`.

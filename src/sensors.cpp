@@ -1,6 +1,7 @@
 #include "sensors.h"
 #include "config.h"
 #include "i2c_utils.h"
+#include "pressure_correction.h"
 #include <Arduino.h>
 #include <DHT.h>
 #include <Adafruit_BMP085.h>
@@ -105,6 +106,7 @@ bool readBMPRaw(float& temperature, float& pressure) {
 }
 
 // Reads validated telemetry values with retry and BMP recovery logic.
+// Also precomputes sea-level pressure in hPa for upload payload usage.
 bool readSensors(SensorReadings& readings) {
   for (uint8_t attempt = 1; attempt <= Config::kSensorReadRetries; ++attempt) {
     Serial.printf("[Sensors] Read attempt %u/%u\n", attempt, Config::kSensorReadRetries);
@@ -134,9 +136,16 @@ bool readSensors(SensorReadings& readings) {
                   temperature, humidity, pressure);
 
     if (dhtOk && bmpOk) {
+      const float seaLevelPressureHpa =
+          PressureCorrection::toSeaLevelHpa(pressure, Config::kAltitudeMeters);
+
       readings.temperatureC = temperature;
       readings.humidityPct  = humidity;
       readings.pressurePa   = pressure;
+      readings.seaLevelPressureHpa = seaLevelPressureHpa;
+
+      Serial.printf("[Sensors] Sea-level pressure=%.2fhPa (altitude=%.2fm)\n",
+                    seaLevelPressureHpa, Config::kAltitudeMeters);
       Serial.println("[Sensors] Sensor values validated.");
       return true;
     }

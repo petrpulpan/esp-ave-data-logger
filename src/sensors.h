@@ -20,5 +20,5 @@ bool readDHTRaw(float& temperature, float& humidity);
 // Raw BMP read – caller checks result; used by self-test diagnostics
 bool readBMPRaw(float& temperature, float& pressure);
 
-// Validate and fill readings; retries on failure
+// Validate and fill readings (including precomputed sea-level pressure); retries on failure
 bool readSensors(SensorReadings& readings);
