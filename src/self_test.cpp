@@ -29,9 +29,9 @@ SensorSelfTestResult runSensorSelfTest() {
     }
 
     if (result.dhtOk && result.bmpOk) {
-      // DHT vs BMP delta helps monitor drift after applying BMP calibration offset.
+      // DHT11 vs BMP180 delta helps monitor drift after applying BMP calibration offset.
       const float delta = fabsf(result.bmpSample.temperatureC - result.dhtSample.temperatureC);
-      Serial.printf("[SelfTest] Temperature comparison BMP=%.2fC DHT=%.2fC Delta=%.2fC\n",
+      Serial.printf("[SelfTest] Temperature comparison BMP180=%.2fC DHT11=%.2fC Delta=%.2fC\n",
                     result.bmpSample.temperatureC, result.dhtSample.temperatureC, delta);
       break;
     }
@@ -62,7 +62,7 @@ StartupSelfTestSummary runStartupSelfTest() {
   summary.sensor = runSensorSelfTest();
   summary.connectivity = runConnectivitySelfTest();
 
-  Serial.printf("[SelfTest] Summary WiFi=%s NTP=%s DHT=%s BMP=%s TempSource=%s\n",
+  Serial.printf("[SelfTest] Summary WiFi=%s NTP=%s DHT11=%s BMP180=%s TempSource=%s\n",
                 summary.connectivity.wifiOk                   ? "OK" : "FAIL",
                 summary.connectivity.ntpOk                    ? "OK" : "FAIL",
                 summary.sensor.dhtOk                          ? "OK" : "FAIL",

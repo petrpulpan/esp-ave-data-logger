@@ -62,7 +62,7 @@ bool readSensors(SensorReadings& readings, SensorReadStatus* status) {
     localStatus.dhtValid = dhtOk;
     localStatus.bmpValid = bmpOk;
 
-    Serial.printf("[Sensors] Raw values T(BMP)=%.2fC H(DHT)=%.2f%% P(BMP)=%.2fPa\n",
+    Serial.printf("[Sensors] Raw values T(BMP180)=%.2fC H(DHT11)=%.2f%% P(BMP180)=%.2fPa\n",
                   bmp.temperatureC, dht.humidityPct, bmp.pressurePa);
 
     if (processed) {
@@ -76,7 +76,7 @@ bool readSensors(SensorReadings& readings, SensorReadStatus* status) {
       return true;
     }
 
-    Serial.printf("[Sensors] Validation failed (DHT=%s, BMP180=%s). Retrying...\n",
+    Serial.printf("[Sensors] Validation failed (DHT11=%s, BMP180=%s). Retrying...\n",
                   dhtOk ? "OK" : "FAIL", bmpOk ? "OK" : "FAIL");
 
     // Re-init on BMP failures to recover from transient bus/device state issues.

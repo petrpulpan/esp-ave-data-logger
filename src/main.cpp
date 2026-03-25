@@ -19,7 +19,7 @@ void setup() {
   Serial.println("[Boot] I2C wiring: D1=GPIO5=SCL, D2=GPIO4=SDA");
 
   const SensorInitStatus initStatus = initSensors();
-  Serial.printf("[Boot] Sensor init summary I2C=%s DHT=%s BMP=%s\n",
+  Serial.printf("[Boot] Sensor init summary I2C=%s DHT11=%s BMP180=%s\n",
                 initStatus.i2cInitialized ? "OK" : "FAIL",
                 initStatus.dhtInitialized ? "OK" : "FAIL",
                 initStatus.bmpLibraryInitialized ? "OK" : "FAIL");
