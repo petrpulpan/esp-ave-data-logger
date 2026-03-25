@@ -6,6 +6,7 @@
 #include <WiFiClientSecureBearSSL.h>
 #include <math.h>
 
+// Builds and sends the HTTPS upload request with corrected pressure values.
 bool sendData(const SensorReadings& readings, uint32_t unixTime) {
   // Convert station pressure (Pa) -> sea-level pressure (Pa) -> hPa
   // so backend values are comparable across sites with different elevations.

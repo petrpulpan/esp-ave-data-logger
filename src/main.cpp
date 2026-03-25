@@ -5,6 +5,7 @@
 #include "http_client.h"
 #include "self_test.h"
 
+// Initializes serial logging, sensors, and one-time startup diagnostics.
 void setup() {
   Serial.begin(115200);
   Serial.setDebugOutput(true);
@@ -20,6 +21,7 @@ void setup() {
   shutdownWiFi();
 }
 
+// Runs one full telemetry cycle, uploads data, then waits for next interval.
 void loop() {
   Serial.println("========================================");
   Serial.println("[Loop] Starting new acquisition/upload cycle.");

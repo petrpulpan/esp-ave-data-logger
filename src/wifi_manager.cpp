@@ -5,6 +5,7 @@
 #include <NTPClient.h>
 #include <WiFiUdp.h>
 
+// Powers on STA mode and connects to configured WiFi with timeout.
 bool connectWiFi() {
   Serial.println("[WiFi] Powering on WiFi...");
   WiFi.persistent(false);
@@ -32,6 +33,7 @@ bool connectWiFi() {
   return true;
 }
 
+// Cleanly disconnects and powers down the ESP8266 WiFi radio.
 void shutdownWiFi() {
   Serial.println("[WiFi] Disconnecting and powering down WiFi...");
   WiFi.disconnect(true);
@@ -40,6 +42,7 @@ void shutdownWiFi() {
   Serial.println("[WiFi] WiFi is now OFF.");
 }
 
+// Obtains current UNIX epoch time from the configured NTP server.
 bool getUnixTime(uint32_t& unixTime) {
   Serial.println("[NTP] Starting NTP client...");
 

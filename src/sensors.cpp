@@ -17,11 +17,13 @@ bool gBmpInitialized = false;
 // Private I2C helpers
 // ---------------------------------------------------------------------------
 
+// Returns true when an I2C device acknowledges on the specified address.
 static bool isI2CDevicePresent(uint8_t address) {
   Wire.beginTransmission(address);
   return Wire.endTransmission() == 0;
 }
 
+// Reads a single byte from an I2C register.
 static bool readI2CRegister(uint8_t address, uint8_t reg, uint8_t& value) {
   Wire.beginTransmission(address);
   Wire.write(reg);
@@ -31,6 +33,7 @@ static bool readI2CRegister(uint8_t address, uint8_t reg, uint8_t& value) {
   return true;
 }
 
+// Reads a contiguous register block from an I2C device.
 static bool readI2CBlock(uint8_t address, uint8_t startReg,
                          uint8_t* buffer, size_t length) {
   if (!buffer || length == 0) return false;
@@ -50,6 +53,7 @@ static bool readI2CBlock(uint8_t address, uint8_t startReg,
 // Public functions
 // ---------------------------------------------------------------------------
 
+// Scans the I2C bus and logs detected device addresses.
 void scanI2CBus() {
   Serial.println("[I2C] Scanning bus for devices...");
   uint8_t found = 0;
@@ -66,6 +70,7 @@ void scanI2CBus() {
   if (found == 0) Serial.println("[I2C] No devices detected.");
 }
 
+// Probes and initializes BMP180, including diagnostic chip/calibration reads.
 bool initBmp180() {
   Wire.begin(Config::kI2cSdaPin, Config::kI2cSclPin);
   Wire.setClock(100000);
@@ -112,6 +117,7 @@ bool initBmp180() {
   return true;
 }
 
+// Initializes I2C, DHT11, and BMP180 sensors during boot.
 void initSensors() {
   Wire.begin(Config::kI2cSdaPin, Config::kI2cSclPin);
   Wire.setClock(100000);
@@ -127,12 +133,14 @@ void initSensors() {
   }
 }
 
+// Reads raw DHT11 temperature and humidity values.
 bool readDHTRaw(float& temperature, float& humidity) {
   temperature = s_dht.readTemperature();
   humidity    = s_dht.readHumidity();
   return !isnan(temperature) && !isnan(humidity);
 }
 
+// Reads raw BMP180 temperature/pressure and applies configured temperature correction.
 bool readBMPRaw(float& temperature, float& pressure) {
   temperature = s_bmp.readTemperature();
   pressure    = s_bmp.readPressure();
@@ -146,6 +154,7 @@ bool readBMPRaw(float& temperature, float& pressure) {
          pressure <= Config::kBmpMaxPressurePa;
 }
 
+// Reads validated telemetry values with retry and BMP recovery logic.
 bool readSensors(SensorReadings& readings) {
   for (uint8_t attempt = 1; attempt <= Config::kSensorReadRetries; ++attempt) {
     Serial.printf("[Sensors] Read attempt %u/%u\n", attempt, Config::kSensorReadRetries);

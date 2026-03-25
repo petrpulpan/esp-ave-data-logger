@@ -5,6 +5,7 @@
 #include <Arduino.h>
 #include <math.h>
 
+// Executes startup sensor/network checks and prints a consolidated status summary.
 void runStartupSelfTest() {
   Serial.println("[SelfTest] Running startup checks...");
 
@@ -35,6 +36,7 @@ void runStartupSelfTest() {
       break;
     }
 
+    // Wait before retry so DHT11 has time to provide a fresh stable sample.
     delay(1200);
   }
 
