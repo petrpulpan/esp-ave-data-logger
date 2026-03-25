@@ -80,6 +80,8 @@ platformio device monitor --baud 115200
 
 Edit `include/config.h` and `src/config.cpp` to set your network credentials, device ID, endpoint URL, and physical constants (altitude for pressure correction, temperature calibration offset, loop interval, etc.).
 
+Current default calibration offset for BMP180 temperature is `-1.0` °C (`Config::kBmpSensorTemperatureCalibration`).
+
 ---
 
 ## Developer guide

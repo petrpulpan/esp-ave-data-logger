@@ -22,9 +22,11 @@ The codebase is intentionally split into small modules so hardware, networking, 
   - Definitions of runtime string constants (SSID, password, device id, endpoint URL)
 - src/main.cpp
   - High-level orchestration only (setup and loop)
+- src/i2c_utils.h + src/i2c_utils.cpp
+  - Low-level I2C bus setup, probing, register/block reads, and scan logging
 - src/sensors.h + src/sensors.cpp
   - DHT11 and BMP180 initialization/read logic
-  - I2C scanner and BMP180 diagnostics
+  - BMP180 diagnostics and validation
   - Read validation, BMP temperature calibration, and retry handling
 - src/wifi_manager.h + src/wifi_manager.cpp
   - WiFi connect/disconnect
@@ -85,7 +87,7 @@ Important tuning values in include/config.h:
   - Used for sea-level pressure conversion
 - Config::kBmpSensorTemperatureCalibration
   - Additive correction applied to BMP180 temperature
-  - Default value: -1.5 (deg C)
+  - Default value: -1.0 (deg C)
 - Config::kLoopIntervalMs
 - Config::kWifiTimeoutMs
 - Config::kNtpTimeoutMs
